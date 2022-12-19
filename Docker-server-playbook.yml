@@ -1,0 +1,52 @@
+---
+# tasks file for docker-server
+# Performing clean on server.
+ - name: Docker installation
+   hosts: all
+   become: yes
+   tasks:
+     - name: if packages are available, make sure packages are remove before installation
+       yum: name="{{ item }}" update_cache=yes state=absent
+       with_items:
+          - docker 
+          - docker-client
+          - docker-client-latest
+          - docker-common
+          - docker-latest
+          - docker-latest-logrotate
+          - docker-logrotate
+          - docker-engine
+     - name: packages need to be install in machine
+       yum: name="{{ item  }}" update_cache=yes state=present
+       with_items:
+          - wget
+          - java-1.8.0-openjdk.x86_64
+          - yum-utils
+
+     - name: Execute the command in remote shell; stdout goes to the specified file on the remote
+       ansible.builtin.shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+     - name: Docker packages installation
+       yum: name="{{ item }}" update_cache=yes state=present
+       with_items:
+          - docker-ce 
+          - docker-ce-cli 
+          - containerd.io
+          - docker-compose-plugin
+
+     - name: Execute the command in remote shell; user adding to docker group
+       ansible.builtin.shell: sudo usermod -aG docker $(whoami)
+
+       
+       notify:
+       - docker-start
+
+
+   handlers:
+      - name: docker-start
+        service:
+            name: docker
+            state: started
+   
+       
+    
