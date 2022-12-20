@@ -1,0 +1,48 @@
+---
+# tasks file for docker-playbook
+- name: Remove & clean old install packages
+  ansible.builtin.package:
+    name: 
+      - docker
+      - docker-client
+      - docker-client-latest
+      - docker-common
+      - docker-latest
+      - docker-latest-logrotate
+      - docker-logrotate
+      - docker-engine
+    state: absent
+
+- name: packages need to be install in machine
+  ansible.builtin.package:
+    name:
+      - epel-release
+      - java-1.8.0-openjdk.x86_64
+      - yum-utils
+    state: latest
+
+- name: Execute the command in remote shell; stdout goes to the specified file on the remote
+  ansible.builtin.shell:  yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+- name: Docker pack-installation
+  ansible.builtin.package:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: latest
+
+
+- name: Add the user 'james' with a bash shell, appending the group 'admins' and 'developers' to the user's groups
+  ansible.builtin.user:
+    name: mayank
+    shell: /bin/bash
+    groups: docker
+    append: yes
+
+  notify: "docker-start"
+
+
+
+
