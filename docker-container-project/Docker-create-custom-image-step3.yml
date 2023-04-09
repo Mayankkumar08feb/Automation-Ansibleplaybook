@@ -1,0 +1,9 @@
+---
+ - name: Create a web images
+   hosts: all
+   tasks: 
+     - name: build images
+       docker_image:
+         path: /home/mayank/build/
+         name: web-server
+                
